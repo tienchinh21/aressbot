@@ -1,0 +1,42 @@
+name: CI Node.js
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-test-artifact:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "yarn"
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build TypeScript
+        run: yarn build
+
+      - name: Run unit tests
+        run: node --test dist/test/**/*.test.js
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aresbot-dist
+          path: |
+            dist/**
+            package.json
+            yarn.lock
+            .env.example
+          if-no-files-found: error
