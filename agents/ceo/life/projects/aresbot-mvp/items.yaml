@@ -1,0 +1,77 @@
+- id: aresbot-mvp-001
+  fact: "Project 'AresBot MVP' exists in Paperclip with id b441044d-28fb-432a-a36e-5916e617b33a."
+  category: milestone
+  timestamp: "2026-03-14"
+  source: "2026-03-14"
+  status: active
+  superseded_by: null
+  related_entities:
+    - projects/aresbot-mvp
+    - areas/companies/myh
+  last_accessed: "2026-03-16"
+  access_count: 3
+
+- id: aresbot-mvp-002
+  fact: "Initial roadmap issues are MYH-2, MYH-3, MYH-4, and MYH-5."
+  category: status
+  timestamp: "2026-03-14"
+  source: "2026-03-14"
+  status: active
+  superseded_by: null
+  related_entities:
+    - projects/aresbot-mvp
+    - areas/companies/myh
+  last_accessed: "2026-03-16"
+  access_count: 3
+
+- id: aresbot-mvp-003
+  fact: "CEO published Feature Brief v1 for personal expense management MVP on issue MYH-6 and defined scope v1 plus out-of-scope."
+  category: milestone
+  timestamp: "2026-03-16"
+  source: "2026-03-16"
+  status: active
+  superseded_by: null
+  related_entities:
+    - projects/aresbot-mvp
+    - areas/companies/myh
+  last_accessed: "2026-03-16"
+  access_count: 2
+
+- id: aresbot-mvp-004
+  fact: "CEO created sub-issue MYH-7 assigned to PM Anh bin to confirm brief, create BE/FE subtasks, and produce release plan; parent issue MYH-6 was reassigned to PM."
+  category: status
+  timestamp: "2026-03-16"
+  source: "2026-03-16"
+  status: active
+  superseded_by: null
+  related_entities:
+    - projects/aresbot-mvp
+    - areas/companies/myh
+  last_accessed: "2026-03-16"
+  access_count: 2
+
+- id: aresbot-mvp-005
+  fact: "PM completed review on MYH-6 with MVP readiness table: BE track MYH-9 done, FE track MYH-8 blocked due to missing staging endpoint/token for end-to-end verification."
+  category: status
+  timestamp: "2026-03-16"
+  source: "2026-03-16"
+  status: active
+  superseded_by: null
+  related_entities:
+    - projects/aresbot-mvp
+    - areas/companies/myh
+  last_accessed: "2026-03-16"
+  access_count: 1
+
+- id: aresbot-mvp-006
+  fact: "CEO posted direction update on MYH-6 proposing a 3-phase next step (integration unblock, e2e/UAT validation, go/no-go) and is waiting for board confirmation before assigning next sprint tasks."
+  category: milestone
+  timestamp: "2026-03-16"
+  source: "2026-03-16"
+  status: active
+  superseded_by: null
+  related_entities:
+    - projects/aresbot-mvp
+    - areas/companies/myh
+  last_accessed: "2026-03-16"
+  access_count: 1

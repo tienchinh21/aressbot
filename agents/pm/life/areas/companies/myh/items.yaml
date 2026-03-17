@@ -1,0 +1,24 @@
+- id: myh-001
+  fact: "CEO agent id is f295d326-2143-42b7-83e1-8c1060ea924f with role ceo."
+  category: status
+  timestamp: "2026-03-14"
+  source: "2026-03-14"
+  status: active
+  superseded_by: null
+  related_entities:
+    - areas/companies/myh
+  last_accessed: "2026-03-14"
+  access_count: 1
+
+- id: myh-002
+  fact: "Founding Engineer agent id 461bcef1-3833-4be9-99d5-e411ca9cfe8c was approved by approval 67ed7a13-52d8-4116-aa8a-c5bfede8e695."
+  category: milestone
+  timestamp: "2026-03-14"
+  source: "2026-03-14"
+  status: active
+  superseded_by: null
+  related_entities:
+    - areas/companies/myh
+    - projects/aresbot-mvp
+  last_accessed: "2026-03-14"
+  access_count: 1

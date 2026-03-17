@@ -1,0 +1,25 @@
+- id: aresbot-mvp-001
+  fact: "Project 'AresBot MVP' exists in Paperclip with id b441044d-28fb-432a-a36e-5916e617b33a."
+  category: milestone
+  timestamp: "2026-03-14"
+  source: "2026-03-14"
+  status: active
+  superseded_by: null
+  related_entities:
+    - projects/aresbot-mvp
+    - areas/companies/myh
+  last_accessed: "2026-03-14"
+  access_count: 1
+
+- id: aresbot-mvp-002
+  fact: "Initial roadmap issues are MYH-2, MYH-3, MYH-4, and MYH-5."
+  category: status
+  timestamp: "2026-03-14"
+  source: "2026-03-14"
+  status: active
+  superseded_by: null
+  related_entities:
+    - projects/aresbot-mvp
+    - areas/companies/myh
+  last_accessed: "2026-03-14"
+  access_count: 1
