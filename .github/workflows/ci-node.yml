@@ -47,13 +47,95 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
-      - name: Trigger Render deploy hook
+      - name: Trigger Render deploy
+        id: trigger_deploy
         env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
         run: |
-          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
-            echo "Missing secret: RENDER_DEPLOY_HOOK_URL"
+          if [ -z "$RENDER_API_KEY" ] || [ -z "$RENDER_SERVICE_ID" ]; then
+            echo "Missing secrets: RENDER_API_KEY or RENDER_SERVICE_ID"
             exit 1
           fi
 
-          curl -fsS --retry 3 --retry-delay 3 -X POST "$RENDER_DEPLOY_HOOK_URL"
+          RESPONSE="$(curl -fsS --retry 3 --retry-delay 3 -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys")"
+
+          DEPLOY_ID="$(printf '%s' "$RESPONSE" | node -e 'let d=""; process.stdin.on("data", c => d += c); process.stdin.on("end", () => { const j = JSON.parse(d); if (!j.id) { console.error("Missing deploy id in response"); process.exit(1); } process.stdout.write(j.id); });')"
+          echo "deploy_id=$DEPLOY_ID" >> "$GITHUB_OUTPUT"
+          echo "Triggered deploy id: $DEPLOY_ID"
+
+      - name: Wait for Render deploy to finish
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          DEPLOY_ID: ${{ steps.trigger_deploy.outputs.deploy_id }}
+        run: |
+          if [ -z "$DEPLOY_ID" ]; then
+            echo "Missing deploy id."
+            exit 1
+          fi
+
+          ATTEMPTS=60
+          SLEEP_SECONDS=10
+
+          for i in $(seq 1 "$ATTEMPTS"); do
+            RESPONSE="$(curl -fsS \
+              -H "Authorization: Bearer $RENDER_API_KEY" \
+              "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys/$DEPLOY_ID")"
+
+            STATUS="$(printf '%s' "$RESPONSE" | node -e 'let d=""; process.stdin.on("data", c => d += c); process.stdin.on("end", () => { const j = JSON.parse(d); if (!j.status) { console.error("Missing deploy status"); process.exit(1); } process.stdout.write(j.status); });')"
+
+            echo "Attempt $i/$ATTEMPTS - status: $STATUS"
+
+            case "$STATUS" in
+              live)
+                echo "Deploy finished successfully."
+                exit 0
+                ;;
+              build_failed|update_failed|canceled|pre_deploy_failed|deactivated)
+                echo "Deploy failed with status: $STATUS"
+                exit 1
+                ;;
+              *)
+                sleep "$SLEEP_SECONDS"
+                ;;
+            esac
+          done
+
+          echo "Timed out waiting for deploy completion."
+          exit 1
+
+      - name: Notify Telegram success
+        if: success() && secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_CHAT_ID != ''
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          COMMIT: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          MESSAGE=$'✅ Render deploy thành công\n'"Repo: $REPO"$'\n'"Branch: $BRANCH"$'\n'"Commit: $COMMIT"$'\n'"Run: $RUN_URL"
+          curl -fsS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${MESSAGE}" \
+            --data-urlencode "disable_web_page_preview=true"
+
+      - name: Notify Telegram failure
+        if: failure() && secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_CHAT_ID != ''
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          COMMIT: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          MESSAGE=$'❌ Render deploy thất bại\n'"Repo: $REPO"$'\n'"Branch: $BRANCH"$'\n'"Commit: $COMMIT"$'\n'"Run: $RUN_URL"
+          curl -fsS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${MESSAGE}" \
+            --data-urlencode "disable_web_page_preview=true"
