@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     branch: main
-    autoDeploy: true
+    autoDeploy: false
     buildCommand: corepack enable && yarn install --frozen-lockfile && yarn build
     startCommand: yarn start
     envVars:
