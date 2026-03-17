@@ -1,4 +1,5 @@
 import { Bot, InlineKeyboard, Keyboard, type Context } from "grammy";
+import { createServer } from "node:http";
 import "dotenv/config";
 
 const token = process.env.BOT_TOKEN;
@@ -957,4 +958,32 @@ bot.command("cancel", (ctx) => {
   return ctx.reply(ok ? `Đã hủy #${id}.` : `Không tìm thấy #${id}.`);
 });
 
+const startHealthServerForRender = (): void => {
+  const rawPort = process.env.PORT?.trim();
+  if (!rawPort) return;
+
+  const port = Number(rawPort);
+  if (!Number.isInteger(port) || port <= 0) {
+    console.warn(`[health] Invalid PORT value: ${rawPort}`);
+    return;
+  }
+
+  const healthServer = createServer((req, res) => {
+    const url = req.url ?? "/";
+    if (url === "/" || url === "/health" || url === "/healthz") {
+      res.writeHead(200, { "content-type": "application/json; charset=utf-8" });
+      res.end(JSON.stringify({ status: "ok" }));
+      return;
+    }
+
+    res.writeHead(404, { "content-type": "application/json; charset=utf-8" });
+    res.end(JSON.stringify({ error: "NOT_FOUND" }));
+  });
+
+  healthServer.listen(port, "0.0.0.0", () => {
+    console.log(`[health] Listening on 0.0.0.0:${port}`);
+  });
+};
+
+startHealthServerForRender();
 bot.start();

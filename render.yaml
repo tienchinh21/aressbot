@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: aresbot
+    runtime: node
+    plan: free
+    branch: main
+    autoDeploy: true
+    buildCommand: corepack enable && yarn install --frozen-lockfile && yarn build
+    startCommand: yarn start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
