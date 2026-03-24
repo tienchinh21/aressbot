@@ -3,8 +3,9 @@ export class ApiError extends Error {
   code: string;
   details?: unknown;
   test?: boolean;
+  test2?: boolean;
 
-  constructor(status: number, code: string, message: string, details?: unknown, test?: boolean) {
+  constructor(status: number, code: string, message: string, details?: unknown, test?: boolean, test2?: boolean) {
     super(message);
     this.name = "ApiError";
     this.status = status;
