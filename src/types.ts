@@ -7,6 +7,7 @@ export interface Category {
   name: string;
   type: TransactionType;
   isDefault: boolean;
+  createdAt?: string;
 }
 
 export interface CreateTransactionInput {
